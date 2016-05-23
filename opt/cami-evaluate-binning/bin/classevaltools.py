@@ -5,7 +5,7 @@ from itertools import count
 from math import isnan, ceil, log
 from sys import stderr
 
-from numpy import array, empty, arange, mean, std, zeros
+from numpy import array, empty, arange, mean, std, zeros, argmax
 
 
 float_nan = float('NaN')
@@ -19,13 +19,23 @@ class ConfusionMatrix:
         self._rowindex = dict(zip(rownames, count()))
         self._colindex = dict(zip(colnames, count()))
         self.title = title
+    
+    def get_freqs(self):
+        for i in range(len(self._mat[0])):
+            rindex = argmax(self._mat[:,i])
+            size_match = self._mat[rindex,i]
+            size_bin = self._mat[:,i].sum()
+            size_genome = self._mat[rindex].sum()
+            yield self._colnames[i], self._rownames[rindex], size_match, size_bin, size_genome
+
 
     #TODO: pre-compute sums to make operations constant in time
-
+    
     def recall_freqs(self):
         for name, row in zip(self._rownames, self._mat):
             size = row.sum()
             cindex = self._colindex[name]
+            print size, name, cindex
             try:
                 correct = row[cindex]
                 if size:
@@ -141,11 +151,14 @@ class ConfusionMatrix:
         for name, i in zip(self._colnames, count()):
             col = self._mat[:, i]
             size = col.sum()
-            rindex = self._rowindex[name]
+            rindex = argmax(col)
+            #rindex = self._rowindex[name]
+            #print i, size, col[rindex]
+            row_name = self._rownames[rindex]
             try:
                 correct = col[rindex]
                 if size:
-                    yield name, size, correct
+                    yield row_name, size, correct
             except KeyError:
                 pass
 
