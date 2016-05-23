@@ -152,13 +152,11 @@ class ConfusionMatrix:
             col = self._mat[:, i]
             size = col.sum()
             rindex = argmax(col)
-            #rindex = self._rowindex[name]
-            #print i, size, col[rindex]
-            row_name = self._rownames[rindex]
+            rindex = self._rowindex[name]
             try:
                 correct = col[rindex]
                 if size:
-                    yield row_name, size, correct
+                    yield name, size, correct
             except KeyError:
                 pass
 
